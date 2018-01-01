@@ -4,7 +4,8 @@
   "description": "Serverless webpack example using Typescript",
   "main": "handler.js",
   "scripts": {
-    "tslint": "tslint server/**/*.ts"
+    "tslint": "tslint server/**/*.ts",
+    "test": "jest"
   },
   "devDependencies": {
     "@types/aws-lambda": "^0.0.24",
@@ -15,6 +16,7 @@
     "jest": "^22.0.4",
     "serverless-offline": "^3.16.0",
     "serverless-plugin-typescript": "^1.1.5",
+    "ts-jest": "^22.0.0",
     "tslint": "^5.8.0",
     "typescript": "^2.6.2"
   },
@@ -24,5 +26,22 @@
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
     "serverless-http": "^1.5.2"
+  },
+  "jest": {
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testPathIgnorePatterns": [
+      "<rootDir>/node_modules/"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }
