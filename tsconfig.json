@@ -7,10 +7,6 @@
     "outDir": ".build",
     "moduleResolution": "node",
     "lib": ["es2015"],
-    "rootDir": "./",
-    "module": "commonjs",
-  },
-  "exclude": [
-    "node_modules"
-  ]
+    "rootDir": "./"
+  }
 }

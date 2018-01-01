@@ -118,3 +118,6 @@ tags
 .history
 
 # End of https://www.gitignore.io/api/git,vim,node,macos,serverless,visualstudiocode
+
+# Others
+.build
