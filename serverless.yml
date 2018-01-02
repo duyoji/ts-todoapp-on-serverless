@@ -1,16 +1,15 @@
 service:
   name: ts-todoapp-on-serverless
-
+custom:
+  - ${file(./variables-for-serverless/db-bariables.yml)}
 plugins:
   - serverless-plugin-typescript
   - serverless-offline
-
 provider:
   name: aws
   runtime: nodejs6.10
   stage: dev
   region: ap-northeast-1
-
 functions:
   app:
     handler: server/index.handler
@@ -18,3 +17,62 @@ functions:
       - http:
           method: GET
           path: /
+resources:
+  # referred from https://s3.amazonaws.com/cloudformation-templates-us-east-1/Drupal_Single_Instance_With_RDS.template
+  Parameters:
+    DBName:
+      Default: "ts-todoapp-on-serverless"
+      Description: "database name"
+      Type: "String"
+      MinLength: "1"
+      MaxLength: "64"
+      AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+      ConstraintDescription: "must begin with a letter and contain only alphanumeric characters."
+    DBUsername:
+      Default: ${self:custom.DB.USER_NAME}
+      NoEcho: "true"
+      Description: "Dtabase admin account username"
+      Type: "String"
+      MinLength: "1"
+      MaxLength: "16"
+      AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+      ConstraintDescription: "must begin with a letter and contain only alphanumeric characters."
+    DBPassword:
+      Default: ${self:custom.DB.PASSWORD}
+      NoEcho: "true"
+      Description: "The Drupal database admin account password"
+      Type: "String"
+      MinLength: "8"
+      MaxLength: "41"
+      AllowedPattern: "[a-zA-Z0-9]*"
+      ConstraintDescription: "must contain only alphanumeric characters."
+    DBClass:
+      Default: db.t2.micro
+      Description: "Database instance class"
+      Type: "String"
+      AllowedValues:
+        - db.t2.micro
+      ConstraintDescription: "must select a valid database instance type."
+    DBAllocatedStorage:
+      Default: "5"
+      Description: "The size of the database (Gb)"
+      Type: "Number"
+      MinValue: "5"
+      MaxValue: "10"
+      ConstraintDescription: "must be between 5 and 1024Gb."
+  Resources:
+    DBInstance:
+      Type: AWS::RDS::DBInstance
+      Properties:
+        DBName:
+          REF: DBName
+        DBInstanceClass:
+          REF: DBClass
+        MasterUsername:
+          REF: DBUsername
+        MasterUserPassword:
+          REF: DBPassword
+        AllocatedStorage:
+          REF: DBAllocatedStorage
+        Engine: MySQL
+        EngineVersion: '5.7.19'
