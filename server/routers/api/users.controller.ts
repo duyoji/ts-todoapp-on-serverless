@@ -1,4 +1,4 @@
-import { getClient as getDynamoClient } from '../../db/dynamoDBClient';
+import { getDynamoDBInstance } from '../../db/dynamoDB';
 import { GetItemOutput, GetItemInput, PutItemInput, PutItemOutput } from 'aws-sdk/clients/dynamodb';
 import { AWSError } from 'aws-sdk/lib/error';
 import { Request, Response } from 'express';
@@ -17,7 +17,7 @@ const getUser = (req: Request, res: Response) => {
     }
   };
 
-  const getPromise = getDynamoClient().getItem(params).promise();
+  const getPromise = getDynamoDBInstance().getItem(params).promise();
   getPromise.then((data: GetItemOutput) => {
     if (data.Item) {
       const {userId, name} = data.Item;
@@ -54,7 +54,7 @@ const putUser = (req: Request, res: Response) => {
       name: {'S': name}
     }
   };
-  const putPromise = getDynamoClient().putItem(params).promise();
+  const putPromise = getDynamoDBInstance().putItem(params).promise();
   putPromise.then((data: PutItemOutput) => {
     res.json({ userId, name });
   }).catch((error: AWSError) => {

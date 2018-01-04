@@ -1,29 +1,29 @@
 import * as AWS from 'aws-sdk';
 
 // Singleton
-let dynamoDBClient: AWS.DynamoDB | undefined;
-const getClient = () : AWS.DynamoDB  => {
-  if(dynamoDBClient) {
-    return dynamoDBClient;
+let dynamoDB: AWS.DynamoDB | undefined;
+const getDynamoDBInstance = () : AWS.DynamoDB  => {
+  if(dynamoDB) {
+    return dynamoDB;
   }
 
   // process.env.IS_OFFLINE is set by `serverless-offline` (a plugin.)
   const IS_OFFLINE = process.env.IS_OFFLINE;
   if (IS_OFFLINE === 'true') {
-    dynamoDBClient = new AWS.DynamoDB({
+    dynamoDB = new AWS.DynamoDB({
       endpoint: 'http://localhost:8000',
       region: 'localhost',
     });
   } else {
-    dynamoDBClient = new AWS.DynamoDB();
+    dynamoDB = new AWS.DynamoDB();
   }
 
-  return dynamoDBClient;
+  return dynamoDB;
 };
 
 const disconnect = () => {
-  dynamoDBClient = undefined;
+  dynamoDB = undefined;
 };
 
 
-export { getClient, disconnect };
+export { getDynamoDBInstance, disconnect };

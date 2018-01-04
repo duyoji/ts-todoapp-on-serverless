@@ -1,19 +1,10 @@
 // How to test with serverless-dynamodb-local
 // https://medium.com/99xtechnology/serverless-dynamodb-local-unit-testing-619151fb8641
-
-// import * as dynamoDBLocal from 'serverless-dynamodb-local';
-// import * as AWS from 'aws-sdk';
 import chai = require('chai');
 import chaiHttp = require('chai-http');
-import * as AWS from 'aws-sdk';
-
-import { getClient } from '../../../db/dynamoDBClient';
-import app from '../../../server';
-import * as controller from '../../../routers/api/users.controller';
 import { DynamoDB } from 'aws-sdk';
-
-// AWS.config.update({ accessKeyId: "localAccessKey", secretAccessKey: "localSecretAccessKey"});
-// const dbClient = getClient();
+import { getDynamoDBInstance } from '../../../db/dynamoDB';
+import app from '../../../server';
 
 const DUMMY_USER_ID = 'dummyuserid';
 const DUMMY_USER_NAME = 'dummyusername';
@@ -21,13 +12,14 @@ const END_POINT = '/api/users';
 const TABLE_NAME = 'DUMMY_USERS_TABLE';
 const PORT = 9999;
 const server = app.listen(PORT);
+
 chai.use(chaiHttp);
 
 describe('server/routers/api/users.controller', () => {
   let dbClient;
   beforeAll((done) => {
     process.env.IS_OFFLINE = 'true';
-    dbClient = getClient();
+    dbClient = getDynamoDBInstance();
     createUsersTable(dbClient, () => {
       done();
     });
@@ -170,7 +162,7 @@ describe('server/routers/api/users.controller', () => {
   });
 });
 
-const createUsersTable = (dynamoDBClient: AWS.DynamoDB, callback) => {
+const createUsersTable = (dynamoDB: AWS.DynamoDB, callback) => {
   const params = {
     TableName: TABLE_NAME,
     KeySchema: [
@@ -184,7 +176,7 @@ const createUsersTable = (dynamoDBClient: AWS.DynamoDB, callback) => {
       WriteCapacityUnits: 1
     }
   };
-  dynamoDBClient.createTable(params, (err, data) => {
+  dynamoDB.createTable(params, (err, data) => {
     if(err) {
       console.error(err, 'in createUsersTable function');
     }
@@ -192,11 +184,11 @@ const createUsersTable = (dynamoDBClient: AWS.DynamoDB, callback) => {
   });
 };
 
-const deleteUsersTable = (dynamoDBClient: AWS.DynamoDB, callback) => {
+const deleteUsersTable = (dynamoDB: AWS.DynamoDB, callback) => {
   const params = {
     TableName: TABLE_NAME,
   };
-  dynamoDBClient.deleteTable(params, (err, data) => {
+  dynamoDB.deleteTable(params, (err, data) => {
     if(err) {
       console.error(err, 'in deleteUsersTable function');
     }

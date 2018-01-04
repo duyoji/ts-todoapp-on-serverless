@@ -1,6 +1,6 @@
-import { getClient, disconnect } from '../../db/dynamoDBClient';
+import { getDynamoDBInstance, disconnect } from '../../db/dynamoDB';
 
-describe('db/dynamoDBClient', () => {
+describe('db/dynamoDB', () => {
   afterEach(() => {
     disconnect();
   });
@@ -8,7 +8,7 @@ describe('db/dynamoDBClient', () => {
   describe('When process.env.IS_OFFLINE is true', () => {
     it('should set localhost as a region.', () => {
       process.env.IS_OFFLINE = 'true';
-      const dynamoDB = getClient();
+      const dynamoDB = getDynamoDBInstance();
       expect(dynamoDB.config.endpoint).toEqual('http://localhost:8000');
       expect(dynamoDB.config.region).toEqual('localhost');
     });
@@ -17,7 +17,7 @@ describe('db/dynamoDBClient', () => {
   describe('When process.env.IS_OFFLINE is false', () => {
     it('should set no options', () => {
       process.env.IS_OFFLINE = 'false';
-      const dynamoDB = getClient();
+      const dynamoDB = getDynamoDBInstance();
       expect(dynamoDB.config.endpoint).toEqual('dynamodb.undefined.amazonaws.com');
       expect(dynamoDB.config.region).toEqual(undefined);
     });
