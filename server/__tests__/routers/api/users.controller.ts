@@ -15,6 +15,8 @@ import { DynamoDB } from 'aws-sdk';
 // AWS.config.update({ accessKeyId: "localAccessKey", secretAccessKey: "localSecretAccessKey"});
 // const dbClient = getClient();
 
+const DUMMY_USER_ID = 'dummyuserid';
+const DUMMY_USER_NAME = 'dummyusername';
 const END_POINT = '/api/users';
 const TABLE_NAME = 'DUMMY_USERS_TABLE';
 const PORT = 9999;
@@ -38,7 +40,6 @@ describe('server/routers/api/users.controller', () => {
   });
 
   describe('GET /users/:userId (`getUser` handler)', () => {
-    const DUMMY_USER_ID = 'dummyuserid';
     describe('If process.env.USERS_TABLE is undefined', () => {
       beforeAll(() => {
         process.env.USERS_TABLE = undefined;
@@ -92,6 +93,77 @@ describe('server/routers/api/users.controller', () => {
             expect(err.status).toEqual(404);
             expect(err.response.body.error).toEqual('User not found');
             done();
+          });
+      });
+    });
+  });
+
+  describe('POST /users (`putUser` handler)', () => {
+    const createUserData = (userId, name) => ({userId, name});
+
+    describe('If process.env.USERS_TABLE is undefined', () => {
+      beforeAll(() => {
+        process.env.USERS_TABLE = undefined;
+      });
+
+      it('returns 400 error with a message "Could not find USERS_TABLE"', (done) => {
+        chai.request(server)
+          .post(`${END_POINT}`)
+          .set('Content-Type', 'application/json')
+          .send(createUserData(DUMMY_USER_ID, DUMMY_USER_NAME))
+          .end((err, res) => {
+            expect(err.status).toEqual(400);
+            expect(err.response.body.error).toEqual('Could not find USERS_TABLE');
+            done();
+          });
+      });
+    });
+
+    describe('If process.env.USERS_TABLE is defined but the table does not exist in db.', () => {
+      beforeAll(() => {
+        process.env.USERS_TABLE = 'INVALID_TABLE';
+      });
+
+      it('returns 400 error with a message "Could not create user"', (done) => {
+        chai.request(server)
+          .post(`${END_POINT}`)
+          .set('Content-Type', 'application/json')
+          .send(createUserData(DUMMY_USER_ID, DUMMY_USER_NAME))
+          .end((err, res) => {
+            expect(err.status).toEqual(400);
+            expect(err.response.body.error).toEqual('Could not create user');
+            done();
+          });
+      });
+    });
+
+    describe('If process.env.USERS_TABLE is defined', () => {
+      beforeAll(() => {
+        process.env.USERS_TABLE = TABLE_NAME;
+      });
+
+      it('returns user data when creating a new user succeeded.', (done) => {
+        chai.request(server)
+          .post(`${END_POINT}`)
+          .set('Content-Type', 'application/json')
+          .send(createUserData(DUMMY_USER_ID, DUMMY_USER_NAME))
+          .end((err, res) => {
+            expect(err).toEqual(null);
+            expect(res.status).toEqual(200);
+            expect(res.body).toEqual(createUserData(DUMMY_USER_ID, DUMMY_USER_NAME));
+
+            chai.request(server)
+              .get(`${END_POINT}/${DUMMY_USER_ID}`)
+              .set('Content-Type', 'application/json')
+              .end((err, res) => {
+                expect(err).toEqual(null);
+                expect(res.status).toEqual(200);
+                expect(res.body).toEqual({
+                  userId: DUMMY_USER_ID,
+                  name: DUMMY_USER_NAME
+                });
+                done();
+              });
           });
       });
     });

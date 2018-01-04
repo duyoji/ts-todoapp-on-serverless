@@ -21,7 +21,10 @@ const getUser = (req: Request, res: Response) => {
   getPromise.then((data: GetItemOutput) => {
     if (data.Item) {
       const {userId, name} = data.Item;
-      res.json({ userId, name });
+      res.json({
+        userId: userId['S'],
+        name: name['S']
+      });
     } else {
       res.status(404).json({ error: 'User not found' });
     }
@@ -55,7 +58,6 @@ const putUser = (req: Request, res: Response) => {
   putPromise.then((data: PutItemOutput) => {
     res.json({ userId, name });
   }).catch((error: AWSError) => {
-    console.log(error);
     res.status(400).json({ error: 'Could not create user' });
   });
 };
