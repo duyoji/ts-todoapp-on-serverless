@@ -15,7 +15,7 @@ describe('db/dynamoDBClient', () => {
   });
 
   describe('When process.env.IS_OFFLINE is false', () => {
-    it('should set a as a region.', () => {
+    it('should set no options', () => {
       process.env.IS_OFFLINE = 'false';
       const dynamoDB = getClient();
       expect(dynamoDB.options.endpoint).toEqual(undefined);
