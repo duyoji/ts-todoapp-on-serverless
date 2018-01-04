@@ -33,13 +33,13 @@ functions:
     events:
       - http:
           method: GET
-          path: /users/{proxy+}
+          path: /api/users/{proxy+}
   createUser:
     handler: server/index.handler
     events:
       - http:
           method: POST
-          path: /users
+          path: /api/users
 resources:
   Resources:
     UsersDynamoDBTable:
